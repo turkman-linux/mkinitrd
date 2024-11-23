@@ -22,11 +22,12 @@ export PATH="/bin"
 export init=/sbin/init
 # parse cmdline
 for arg in $(/bin/busybox cat /proc/cmdline) ; do
-    value=${arg/*=/}
-    name=${arg/=*/}
-    if [ "$name" != "" ] && [ "$value" == "$value" ] ; then
-        export "$name"="$value"
-    fi
+    if [[ "$arg" == *"="* ]]; then
+        name="${arg%%=*}"
+        name_length=${#name}
+        value="${arg:name_length+1}"
+        export "$name=$value"
+fi
 done
 # create shell futcion
 function create_shell(){
@@ -40,6 +41,10 @@ function create_shell(){
 function mountroot() {
     if [ ! -d /rootfs ] ; then
         /bin/busybox mkdir -p /rootfs
+        if echo $root | grep -e "^UUID=" ; then
+            uuid="${root#*UUID=}"
+            root="/dev/disk/by-uuid/$uuid"
+        fi
         /bin/busybox mount "$root" -o rw /rootfs
     fi
 }

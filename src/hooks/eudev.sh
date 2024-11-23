@@ -14,4 +14,3 @@ copy_files /lib/udev
 for file in /lib/modules/$kernel/modules.* ; do
     copy_files $file
 done
-copy_binary blkid
