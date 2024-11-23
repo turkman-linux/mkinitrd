@@ -12,7 +12,7 @@ arch=$(/bin/busybox uname -m)
 set -e
 echo -e "Booting \033[32;1m$distro $kernel\033[;0m ($arch)\n"
 # create system dirs
-/bin/busybox mkdir -p /dev /sys /proc
+/bin/busybox mkdir -p /dev/pts /sys /proc
 # mount system dirs
 /bin/busybox mount -t devtmpfs devtmpfs /dev || :
 /bin/busybox mount -t sysfs sysfs /sys || :
@@ -46,6 +46,7 @@ function mountroot() {
             root="/dev/disk/by-uuid/$uuid"
         fi
         /bin/busybox mount "$root" -o rw /rootfs
+        ln -s $root /dev/root
     fi
 }
 # run scripts (init top)
@@ -71,5 +72,7 @@ fi
 for dir in dev sys proc ; do
     /bin/busybox mount --move /$dir /rootfs/$dir
 done
+mkdir -p /rootfs/dev/pts
+mount -t devpts devpts /rootfs/dev/pts
 exec /bin/busybox env -i TERM="$TERM" /bin/busybox \
     switch_root /rootfs $init || create_shell

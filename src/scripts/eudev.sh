@@ -15,5 +15,5 @@ function init_top(){
 }
 
 function init_bottom(){
-    : #    udevadm control --exit
+    udevadm control --exit
 }
