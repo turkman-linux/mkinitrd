@@ -11,11 +11,11 @@ function copy_binary(){
             continue
         fi
         install "$bin" "$work/bin/"
-        if ! ldd "$bin" | grep "=" >/dev/null; then
+        if ! ldd "$bin" 2>/dev/null | grep "=" >/dev/null; then
             continue
         fi
 
-        LD_PRELOAD="" ldd "$bin" | grep -v "=>" | cut -d " " -f1 | tr -d "\t" | while read lib ; do
+        LD_PRELOAD="" ldd "$bin" 2>/dev/null | grep -v "=>" | cut -d " " -f1 | tr -d "\t" | while read lib ; do
             if [ -f "$lib" ] ; then
                 mkdir -p "$work"/${lib%/*}
                 cp -f "$lib" "$work"/${lib%/*}
