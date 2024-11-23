@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/busybox ash
 echo -ne "\033c"
 set +e
 distro=$(/bin/busybox ash -c 'source /etc/os-release ; echo $NAME')

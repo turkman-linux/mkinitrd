@@ -1,0 +1,11 @@
+#!/bin/sh
+# scripts has 2 functions
+function init_top(){
+    # this function run before mount filesystem
+    echo "Hello from top"
+}
+
+function init_bot(){
+    # this function run after mount filesystem
+    echo "Hello from bottom"
+}
