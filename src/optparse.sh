@@ -43,7 +43,7 @@ if [ "$config" == "" ] ; then
     config="$basedir/config.sh"
 fi
 if [ "$output" == "" ] ; then
-    config="/boot/initrd.img-$kernel"
+    config="/etc/initrd/config.sh
 fi
 export kernel
 export firmware
