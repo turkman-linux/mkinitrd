@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 set -o pipefail
-source $(dirname "$(realpath "$0")")/optparse.sh
+source /etc/initrd/optparse.sh
 source $config
 source $basedir/functions.sh
 # create work
