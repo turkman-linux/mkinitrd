@@ -11,16 +11,9 @@ for dir in etc bin lib scripts; do
 done
 ln -s .. $work/usr
 ln -s bin $work/sbin
-<<<<<<< HEAD
-# copy base libc and kmod
-cp -f $basedir/init.sh $work/init
-copy_binary ldconfig
-copy_binary bash
-=======
 # copy base libc
 cp -f $basedir/init.sh $work/init
 copy_binary ldconfig
->>>>>>> c06ff5e (init)
 i=0
 for module in $hooks ; do
     hook="$basedir/hooks/$module.sh"
