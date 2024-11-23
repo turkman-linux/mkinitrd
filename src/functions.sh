@@ -41,7 +41,7 @@ function copy_modules(){
             value=${line/*:/}
             value=${value/ /}
             if [ "$name" == "filename" ] ; then
-                if ! [ -f "$$value" ] ; then
+                if ! [ -f "$value" ] ; then
                     continue
                 fi
                 if [ -f "$work/"$value ] ; then

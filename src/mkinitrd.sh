@@ -34,6 +34,7 @@ done
 #tree $work
 cur=$PWD
 cd $work
+tree .
 chmod 755 -R $work
 find . | cpio -H newc -ov | $compress > $output
 # clear work
