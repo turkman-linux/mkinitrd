@@ -1,5 +1,6 @@
 #!/bin/sh
 output=""
+update=0
 kernel="$(uname -r)"
 basedir="/etc/initrd/"
 compress=cat

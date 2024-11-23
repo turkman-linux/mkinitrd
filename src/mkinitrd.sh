@@ -8,8 +8,14 @@ else
 fi
 source $config
 source $basedir/functions.sh
+if [ -f "$output" ] && [ "$update" != 1 ] ; then
+    echo "Error: The output file $output already exists."
+    echo "To regenerate it, please use the '-u' option."
+    exit 1
+fi
 # create work
 export work=$(mktemp -d)
+echo "Create workdir: $work"
 for dir in etc bin lib scripts; do
     mkdir -p $work/$dir
 done
@@ -35,6 +41,8 @@ done
 cur=$PWD
 cd $work
 chmod 755 -R $work
+echo "Compress: $output"
 find . | cpio -H newc -ov | $compress > $output
 # clear work
 rm -rf $work
+echo "Done"
