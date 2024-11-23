@@ -1,4 +1,9 @@
-#!/bin/busybox ash
+#!/bin/busybox sh
+/bin/busybox --list | /bin/busybox grep -v busybox | while read line ; do
+    if ! [ -f /bin/$line ] ; then
+        /bin/busybox ln -s busybox /bin/$line
+    fi
+done
 echo -ne "\033c"
 set +e
 distro=$(/bin/busybox ash -c 'source /etc/os-release ; echo $NAME')
@@ -34,8 +39,8 @@ function create_shell(){
 # mount  rootfs function
 function mountroot() {
     if [ ! -d /rootfs ] ; then
-        mkdir -p /rootfs
-        mount "$root" -o ro /rootfs
+        /bin/busybox mkdir -p /rootfs
+        /bin/busybox mount "$root" -o rw /rootfs
     fi
 }
 # run scripts (init top)
@@ -58,5 +63,8 @@ fi
 if [ ! -d /rootfs ] ; then
     create_shell
 fi
+for dir in dev sys proc ; do
+    /bin/busybox mount --move /$dir /rootfs/$dir
+done
 exec /bin/busybox env -i TERM="$TERM" /bin/busybox \
     switch_root /rootfs $init || create_shell

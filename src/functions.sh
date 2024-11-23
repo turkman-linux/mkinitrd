@@ -1,17 +1,20 @@
 #!/bin/sh
 
 function copy_binary(){
-    set +e
-    for bin in $@ ; do
+    for bin in $* ; do
         mkdir -p "$work"/lib "$work/bin"
         if command -v "$bin" | : ; then
             bin=$(which $bin)
         fi
         if ! [ -f "$bin" ] ; then
             echo "$bin not found" > /dev/stderr
-            return 1
+            continue
         fi
-        cp "$bin" "$work/bin/"
+        install "$bin" "$work/bin/"
+        if ! ldd "$bin" | grep "=" >/dev/null; then
+            continue
+        fi
+
         LD_PRELOAD="" ldd "$bin" | grep -v "=>" | cut -d " " -f1 | tr -d "\t" | while read lib ; do
             if [ -f "$lib" ] ; then
                 mkdir -p "$work"/${lib%/*}
@@ -22,20 +25,22 @@ function copy_binary(){
             if [ -f "$lib" ] ; then
                 fname=${lib/*\//}
                 if ! [ -f "$work/lib/$fname" ] ; then
-                    cp -f "$lib" "$work/lib/$fname"
+                    install "$lib" "$work/lib/$fname"
                 fi
             fi
         done
     done
     if [ -f "$work/bin/ldconfig" ] ; then
-        unshare -ru chroot "$work" /bin/ldconfig
+        ldconfig -r "$work"
     fi
-    set -e
 }
 alias copy_exec=copy_binary
 
 function copy_modules(){
     for module in $@ ; do
+        if ! $(which modinfo) -k $kernel "$module" >/dev/null ; then
+            continue
+        fi
         $(which modinfo) -k $kernel "$module" | tr -s " "| while read line; do
             name=${line/:*/}
             value=${line/*:/}
