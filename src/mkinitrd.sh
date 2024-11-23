@@ -1,7 +1,11 @@
-#!/bin/sh
+#!/bin/busybox ash
 set -e
 set -o pipefail
-source /etc/initrd/optparse.sh
+if [ -f $(dirname $0)/optparse.sh ] ; then
+    source $(dirname $0)/optparse.sh
+else
+    source /etc/initrd/optparse.sh
+fi
 source $config
 source $basedir/functions.sh
 # create work
