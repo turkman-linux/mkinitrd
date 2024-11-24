@@ -1,6 +1,7 @@
 #!/bin/busybox ash
 set -e
 set -o pipefail
+export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 if [ -f $(dirname $0)/optparse.sh ] ; then
     source $(dirname $0)/optparse.sh
 else
