@@ -5,7 +5,7 @@ kernel="$(uname -r)"
 basedir="/etc/initrd/"
 compress=cat
 config=""
-firmware=1
+firmware=0
 for arg in $@ ; do
     if [ "$arg" == "-u" ] ; then
         update=1
