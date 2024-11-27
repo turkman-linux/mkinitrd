@@ -170,7 +170,7 @@ if [ "${efi_partnum}" == "" ] ; then
     exit 1
 fi
 
-
+set +o pipefail
 entry_path=$(echo ${output/\/boot\/efi/} | tr '/' '\\')
 echo "Adding efivar: ${output/*\//} => ${entry_path}"
 efibootmgr | grep -e "${output/*\//}" | while read line ; do
