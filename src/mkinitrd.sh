@@ -51,7 +51,7 @@ cur=$PWD
 cd $work
 chmod 755 -R $work
 echo "Compress: $output"
-find . | cpio -H newc -ov | $compress > $output
+find . | cpio -H newc -o | $compress > $output
 # clear work
 rm -rf $work
 sync
