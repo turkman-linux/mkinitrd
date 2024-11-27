@@ -75,6 +75,22 @@ void mount_virtual_filesystems() {
     }
 }
 
+void move_virtual_filesystems() {
+    if (mount("/dev", "/rootfs/dev", NULL, MS_MOVE, NULL) == -1) {
+        perror("Failed to move mount /dev");
+    }
+    if (mount("/sys", "/rootfs/sys", NULL, MS_MOVE, NULL) == -1) {
+        perror("Failed to move mount /sys");
+    }
+    if (mount("/proc", "/rootfs/proc", NULL, MS_MOVE, NULL) == -1) {
+        perror("Failed to move mount /proc");
+    }
+    create_dir_if_not_exists("/rootfs/dev/pts");
+    if (mount("devpts", "/rootfs/dev/pts", "devpts", 0, NULL) == -1) {
+        perror("Failed to mount devpts");
+    }
+}
+
 void parse_kernel_cmdline() {
     FILE *cmdline = fopen("/proc/cmdline", "r");
     if (cmdline) {
@@ -166,7 +182,9 @@ int main(int argc, char** argv) {
 
     // Run init scripts (init_bottom)
     run_scripts("/scripts", "init_bottom");
-    
+
+    // Move mountpoints    
+    move_virtual_filesystems();
 
     // Switch root filesystem and start init
     if (chroot("/rootfs") == -1) {
