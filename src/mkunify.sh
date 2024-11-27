@@ -74,7 +74,7 @@ if [ $(id -u) -ne 0 ] ; then
 fi
 
 if [ ! -d /sys/module/loop ] ; then
-    module loop
+    modprobe loop
 fi
 for cmd in grub-mkimage busybox ; do
     if ! command -v $cmd >/dev/null ; then
@@ -89,8 +89,12 @@ cp $initrd $work/initrd
 
 # generate config file
 echo "insmod all_video" > $work/grub.cfg
-echo "linux /linux" >> $work/grub.cfg
-echo "initrd /initrd $cmdline" >> $work/grub.cfg
+echo "insmod memdisk" >> $work/grub.cfg
+echo "insmod fat" >> $work/grub.cfg
+echo "insmod linux" >> $work/grub.cfg
+echo "set root=(memdisk)" >> $work/grub.cfg
+echo "linux /linux $cmdline" >> $work/grub.cfg
+echo "initrd /initrd" >> $work/grub.cfg
 echo "boot" >> $work/grub.cfg
 
 # calculate required size
@@ -117,12 +121,15 @@ sync
 umount $work/memdisk
 
 # create unified image
-grub-mkimage -m $work/memdisk.img -C none -p / -O "$target" -o "$output" all_video memdisk fat normal linux
+grub-mkimage -m $work/memdisk.img -C none -O "$target" -o "$output" all_video memdisk fat normal linux
 
 # cleanup
 rm -rf $work
 
 # efibootmgr
+if [ "${efi_add}" != "1" ] ; then
+    exit 0
+fi
 if ! command -v efibootmgr >/dev/null ; then
     echo "Error: efibootmgr not found" >/dev/stderr
     exit 1
@@ -137,6 +144,7 @@ if [ "${efi_partnum}" == "" ] ; then
 fi
 
 entry_path=$(echo ${output/\/boot\/efi/} | tr '/' '\\')
+echo "Adding efivar: ${output/*\//} => ${entry_path}"
 set +o pipefail
 efibootmgr | grep -e "/${entry_path/\\/\\\\}" | while read line ; do
     num=$(echo $line | cut -d' ' -f1)
