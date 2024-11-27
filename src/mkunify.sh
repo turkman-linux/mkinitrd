@@ -1,20 +1,10 @@
+#!/bin/bash
 work=$(mktemp -d)
 set -e
 set -o pipefail
 
-# default arguments
-linux=/boot/vmlinuz-$(uname -r)
-initrd=/boot/initrd.img-$(uname -r)
-cmdline="$(cat /proc/cmdline)"
-output=/boot/efi/linux-$(uname -r).unified.efi
-target=$(uname -m)-efi
-
-# default arguments about efibootmgr
-efi_add=0
-efi_disk=""
-
 # help message
-function show_help {
+show_help() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Mkunitf creates a unified EFI image for booting a Linux kernel with an initial RAM disk (initrd)."
@@ -33,6 +23,37 @@ function show_help {
     echo "  -p <partnum> Specify the path to efi disks partition number"
 
 }
+
+detect_root() {
+    # detect running system disk
+    root_disk=$(realpath $(cat /proc/mounts | grep " / " | cut -f1 -d" "))
+    root_efi_disk=$(realpath $(cat /proc/mounts | grep " /boot/efi " | cut -f1 -d" "))
+    root_disk=${root_disk/*\//}
+    root_efi_disk=${root_efi_disk/*\//}
+    if [ "${root_disk/[0-9]*/}" == "nvme" ] || [ "${root_disk/[0-9]*/}" == "mmcblk" ] ; then
+        root_disk=${root_disk/p[0-9]*/}
+        root_efi_disk=${root_efi_disk/${root_disk}p/}
+    else
+        root_disk=${root_disk/[0-9]*/}
+        root_efi_disk=${root_efi_disk/${root_disk}/}
+    fi
+    echo ${root_disk} ${root_efi_disk}
+}
+
+
+# default arguments
+linux=/boot/vmlinuz-$(uname -r)
+initrd=/boot/initrd.img-$(uname -r)
+cmdline="$(cat /proc/cmdline)"
+output=/boot/efi/EFI/linux/linux-$(uname -r).unified.efi
+target=$(uname -m)-efi
+
+# default arguments about efibootmgr
+root_data=$(detect_root)
+efi_add="0"
+efi_partnum=${root_data/* /}
+efi_disk=/dev/${root_data/ */}
+unset root_data
 
 # parse arguments
 while getopts ":l:i:c:o:t:e:p:a" arg; do
@@ -121,6 +142,7 @@ sync
 umount $work/memdisk
 
 # create unified image
+mkdir -p $(dirname ${output})
 grub-mkimage -m $work/memdisk.img -C none -O "$target" -o "$output" all_video memdisk fat normal linux
 
 # cleanup
@@ -143,10 +165,10 @@ if [ "${efi_partnum}" == "" ] ; then
     exit 1
 fi
 
+
 entry_path=$(echo ${output/\/boot\/efi/} | tr '/' '\\')
 echo "Adding efivar: ${output/*\//} => ${entry_path}"
-set +o pipefail
-efibootmgr | grep -e "/${entry_path/\\/\\\\}" | while read line ; do
+efibootmgr | grep -e "${output/*\//}" | while read line ; do
     num=$(echo $line | cut -d' ' -f1)
     num=${num/Boot/}
     efibootmgr -B -b ${num/'*'/} >/dev/null
