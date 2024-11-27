@@ -38,7 +38,7 @@ void mount_root(const char *root) {
         pid_t pid = fork();
         int status = 0;
         if(pid == 0) {
-            execlp("/bin/busybox", "mount", "-o", "rw", root, "/rootfs", NULL);
+            execlp("/bin/busybox", "mount", "-o", "ro", root, "/rootfs", NULL);
         }
         waitpid(pid, &status, 0);
         if (status){
@@ -57,6 +57,74 @@ void create_dir_if_not_exists(const char *path) {
             create_shell();
         }
     }
+}
+
+int is_mount_point(const char *dir) {
+    // detect directory is a mountpoint
+    struct stat mountpoint;
+    struct stat parent;
+
+    if (stat(dir, &mountpoint) == -1) {
+        perror("failed to stat mountpoint:");
+        return 1;
+    }
+
+    /* ... and its parent. */
+    char parent_dir[1024];
+    snprintf(parent_dir, sizeof(parent_dir), "%s/..", dir);
+    if (stat(parent_dir, &parent) == -1) {
+        perror("failed to stat parent:");
+        return 1;
+    }
+    return (mountpoint.st_dev != parent.st_dev);
+}
+
+int remove_directory(const char *path) {
+    // remove directory recursivelly
+    // skip mountpoints
+    if(is_mount_point(path)){
+        return 0;
+    }
+    struct dirent *entry;
+    DIR *dp = opendir(path);
+    if (dp == NULL) {
+        perror("opendir");
+        return 0;
+    }
+
+    while ((entry = readdir(dp)) != NULL) {
+        // Skip the special entries "." and ".."
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0){
+            continue;
+        } else {
+            char new_path[1024];
+            snprintf(new_path, sizeof(new_path), "%s/%s", path, entry->d_name);
+
+            struct stat statbuf;
+            if (lstat(new_path, &statbuf) == 0) {
+                if (S_ISDIR(statbuf.st_mode)) {
+                    // Recursively remove the directory
+                    if(remove_directory(new_path)){
+                        // Remove the directory itself
+                        if (rmdir(new_path) != 0) {
+                            puts(new_path);
+                            perror("rmdir");
+                        }
+                    }
+                } else {
+                    // Remove the file
+                    if (remove(new_path) != 0) {
+                        puts(new_path);
+                        perror("remove");
+                    }
+                }
+            }
+        }
+    }
+
+    closedir(dp);
+    return 1;
 }
 
 void mount_virtual_filesystems() {
@@ -131,7 +199,7 @@ void run_scripts(const char *script_dir, const char *script_phase) {
                 continue;  // Skip hidden files
             }
             snprintf(script, sizeof(script), "source %s/%s ; %s", script_dir, entry->d_name, script_phase);
-            printf("\033[33;1mRunning:\033[;0m %s\n", entry->d_name);
+            printf("\033[32;1mRunning:\033[;0m %s\n", entry->d_name);
             pid_t pid = fork();
             if (pid == 0) {
                 execlp("/bin/busybox", "busybox", "ash", "-c", script, NULL);
@@ -153,20 +221,8 @@ void run_scripts(const char *script_dir, const char *script_phase) {
 }
 
 int main(int argc, char** argv) {
-    // Get system info
-    FILE *os_release = fopen("/etc/os-release", "r");
-    if (os_release) {
-        char line[256];
-        while (fgets(line, sizeof(line), os_release)) {
-            if (strncmp(line, "NAME=", 5) == 0) {
-                char *distro = line + 5;
-                distro[strcspn(distro, "\n")] = '\0';
-                printf("Booting \033[33;1m%s\033[;0m\n", distro);
-                break;
-            }
-        }
-        fclose(os_release);
-    }
+    // Clear screen
+    printf("\033c");
 
     // Mount virtual filesystems
     mount_virtual_filesystems();
@@ -186,6 +242,9 @@ int main(int argc, char** argv) {
     // Move mountpoints    
     move_virtual_filesystems();
 
+    // Erase initramfs
+    (void)remove_directory("/");
+
     // Switch root filesystem and start init
     if (chroot("/rootfs") == -1) {
         perror("Failed to chroot");
@@ -195,7 +254,7 @@ int main(int argc, char** argv) {
         perror("Failed to chdir to root");
         create_shell();
     }
-
+    
     char* init = "/sbin/init";
     if(getenv("init")){
         init = getenv("init");
