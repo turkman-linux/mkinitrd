@@ -5,7 +5,7 @@ srcs = ['config.sh',
         'optparse.sh'
 ]
 
-executable('init', 'src/init.c', install_dir:'/etc/initrd')
+executable('init', 'src/init.c', install_dir:'/etc/initrd', install: 'true')
 
 install_subdir('src/hooks/', install_dir: '/etc/initrd/')
 install_subdir('src/scripts/', install_dir: '/etc/initrd/')
