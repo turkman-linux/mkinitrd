@@ -5,6 +5,11 @@ srcs = ['config.sh',
         'optparse.sh'
 ]
 
+add_project_arguments('-Wextra', language: 'c')
+add_project_arguments('-Wall', language: 'c')
+add_project_arguments('-Werror', language: 'c')
+add_project_arguments('-fvisibility=hidden', language: 'c')
+
 executable('init', 'src/init.c', install_dir:'/etc/initrd', install: 'true')
 
 install_subdir('src/hooks/', install_dir: '/etc/initrd/')

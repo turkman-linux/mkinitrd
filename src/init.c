@@ -15,9 +15,11 @@ void create_shell() {
     fprintf(stderr, "\033[31;1mBoot failed! Creating debug shell as PID: 1\033[;0m\n");
 
     // Redirect stdout, stderr, stdin to /dev/console
-    freopen("/dev/console", "w", stdout);
-    freopen("/dev/console", "w", stderr);
-    freopen("/dev/console", "r", stdin);
+    FILE *rc;
+    rc = freopen("/dev/console", "w", stdout);
+    rc = freopen("/dev/console", "w", stderr);
+    rc = freopen("/dev/console", "r", stdin);
+    (void)rc;
 
     // Start a new shell (ash in this case)
     execlp("/bin/busybox", "ash", NULL);
@@ -45,7 +47,8 @@ void mount_root(const char *root) {
             perror("Failed to mount root");
             create_shell();
         }
-        symlink(root, "/dev/root");
+        int rc = symlink(root, "/dev/root");
+        (void)rc;
     }
 }
 
@@ -221,6 +224,7 @@ void run_scripts(const char *script_dir, const char *script_phase) {
 }
 
 int main(int argc, char** argv) {
+    (void)argc; (void)argv;
     // Clear screen
     printf("\033c");
 
