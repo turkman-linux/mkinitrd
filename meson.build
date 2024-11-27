@@ -13,8 +13,15 @@ foreach src : srcs
     install_data('src'/src, install_dir: '/etc/initrd/')
 endforeach
 install_data(
-    'src/mkinitrd.sh', 
-    install_dir: get_option('bindir'), 
+    'src/mkinitrd.sh',
+    install_dir: get_option('bindir'),
     install_mode: 'rwxr-xr-x',
     rename: 'mkinitrd'
+)
+
+install_data(
+    'src/mkunify.sh',
+    install_dir: get_option('bindir'),
+    install_mode: 'rwxr-xr-x',
+    rename: 'mkunify'
 )
