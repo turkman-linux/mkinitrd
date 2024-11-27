@@ -12,7 +12,7 @@
 #include <signal.h>
 
 void create_shell() {
-    fprintf(stderr, "Boot failed! Creating debug shell as PID: 1\n");
+    fprintf(stderr, "\033[31;1mBoot failed! Creating debug shell as PID: 1\033[;0m\n");
 
     // Redirect stdout, stderr, stdin to /dev/console
     freopen("/dev/console", "w", stdout);
@@ -115,7 +115,7 @@ void run_scripts(const char *script_dir, const char *script_phase) {
                 continue;  // Skip hidden files
             }
             snprintf(script, sizeof(script), "source %s/%s ; %s", script_dir, entry->d_name, script_phase);
-            printf("Running: %s\n", entry->d_name);
+            printf("\033[33;1mRunning:\033[;0m %s\n", entry->d_name);
             pid_t pid = fork();
             if (pid == 0) {
                 execlp("/bin/busybox", "busybox", "ash", "-c", script, NULL);
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
             if (strncmp(line, "NAME=", 5) == 0) {
                 char *distro = line + 5;
                 distro[strcspn(distro, "\n")] = '\0';
-                printf("Booting %s\n", distro);
+                printf("Booting \033[33;1m%s\033[;0m\n", distro);
                 break;
             }
         }
