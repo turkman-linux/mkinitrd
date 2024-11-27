@@ -1,0 +1,15 @@
+#!/bin/sh
+# some environments
+echo $work # initramfs template dir
+echo $basedir # mkinitrd dir
+echo $config # config file dir
+echo $kernel # kernel version
+
+# for adding executable:
+copy_binary bash
+# for adding kernel module
+copy_modules sr_mod
+# for adding kernel module tree
+copy_module_tree kernel/fs
+# for copy file or directory
+copy_files /etc/modprobe.d
