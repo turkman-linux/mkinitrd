@@ -104,7 +104,7 @@ size=$(expr $size '*' 105 / 100)
 # create and format image
 echo "Generating: $output"
 busybox dd if=/dev/zero of=$work/memdisk.img bs=$size count=1 2>/dev/null
-busybox mkfs.vfat $work/memdisk.img
+mkfs.vfat $work/memdisk.img
 
 # mount image
 mkdir -p $work/memdisk
