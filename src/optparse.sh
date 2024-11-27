@@ -30,7 +30,7 @@ for arg in $@ ; do
         update=1
     fi
 done
-while getopts ":o:b:k:f:c:z:" arg; do
+while getopts ":o:b:k:f:c:z:u" arg; do
   case $arg in
     o)
       output=$(realpath $OPTARG)
@@ -50,6 +50,7 @@ while getopts ":o:b:k:f:c:z:" arg; do
     k)
       kernel=$OPTARG
       ;;
+    u);;
     *)
       help_message
       exit 1
