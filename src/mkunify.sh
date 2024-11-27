@@ -5,23 +5,28 @@ set -o pipefail
 
 # help message
 show_help() {
-    echo "Usage: $0 [OPTIONS]"
+    echo "Usage: mkunify [OPTIONS]"
     echo ""
-    echo "Mkunitf creates a unified EFI image for booting a Linux kernel with an initial RAM disk (initrd)."
+    echo "mkunify creates a unified EFI image for booting a Linux kernel with an"
+    echo "initial RAM disk (initrd)."
     echo ""
     echo "Options:"
-    echo "  -l <path>    Specify the path to the Linux kernel image (default: /boot/vmlinuz-$(uname -r))"
-    echo "  -i <path>    Specify the path to the initrd image (default: /boot/initrd.img-$(uname -r))"
-    echo "  -c <cmdline> Specify the kernel command line parameters (default: contents of /proc/cmdline)"
-    echo "  -o <path>    Specify the output path for the unified EFI image (default: /boot/efi/linux-$(uname -r).unified.efi)"
-    echo "  -t <arch>    Specify the target architecture for EFI (default: $(uname -m)-efi)"
-    echo "  -h           Display this help message and exit"
+    echo "  -l <path>    Specify the path to the Linux kernel image"
+    echo "                (default: /boot/vmlinuz-$(uname -r))"
+    echo "  -i <path>    Specify the path to the initrd image"
+    echo "                (default: /boot/initrd.img-$(uname -r))"
+    echo "  -c <cmdline> Specify the kernel command line parameters"
+    echo "                (default: contents of /proc/cmdline)"
+    echo "  -o <path>    Specify the output path for the unified EFI image"
+    echo "                 (default:/boot/efi/linux-$(uname -r).unified.efi)"
+    echo "  -t <arch>    Specify the target architecture for EFI"
+    echo "                 (default: $(uname -m)-efi)"
+    echo "  -h, --help       Display this help message and exit."
     echo ""
     echo "Efi Options:"
     echo "  -a           Add generated image to efivars"
     echo "  -e <efidisk> Specify the path to efi disk"
-    echo "  -p <partnum> Specify the path to efi disks partition number"
-
+    echo "  -p <partnum> Specify the path to efi disk's partition number"
 }
 
 detect_root() {

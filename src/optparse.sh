@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/busybox ash
 output=""
 update=0
 kernel="$(uname -r)"
@@ -6,6 +6,25 @@ basedir="/etc/initrd/"
 compress=cat
 config=""
 firmware=0
+
+function help_message() {
+    echo "Usage: mkinitrd [OPTIONS]"
+    echo "Create an initial ramdisk image for booting the Linux kernel."
+    echo ""
+    echo "Options:"
+    echo "  -o <output>      Specify the output file path."
+    echo "  -b <basedir>     Specify the base directory."
+    echo "                    Default is /etc/initrd/."
+    echo "  -k <kernel>      Specify the kernel version."
+    echo "                    Default is the $(uname -r)"
+    echo "  -f               Enable firmware inclusion in the output."
+    echo "  -c <config>      Specify the configuration file path."
+    echo "  -z <compress>    Specify the compression method. Default is 'cat'."
+    echo "  -u               Update mode. Run in update mode if this flag is provided."
+    echo "  -h, --help       Display this help message and exit."
+
+}
+
 for arg in $@ ; do
     if [ "$arg" == "-u" ] ; then
         update=1
@@ -32,6 +51,8 @@ while getopts ":o:b:k:f:c:z:" arg; do
       kernel=$OPTARG
       ;;
     *)
+      help_message
+      exit 1
       ;;
   esac
 done
@@ -48,3 +69,4 @@ if [ "$output" == "" ] ; then
 fi
 export kernel
 export firmware
+

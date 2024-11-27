@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/busybox ash
 
 function copy_binary(){
     for bin in $* ; do
