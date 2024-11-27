@@ -1,0 +1,1 @@
+debian/31-mkinitrd /etc/kernel/postinst.d

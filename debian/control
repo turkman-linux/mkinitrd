@@ -3,12 +3,13 @@ Section: utils
 Priority: optional
 Maintainer: Your Name <your.email@example.org>
 Build-Depends: meson, ninja-build
-Conflict: initramfs-tools
 Standards-Version: 4.3.0
 Homepage: https://example.org
 
 Package: mkinitrd
 Architecture: any
+Provides: linux-initramfs-tool
+Conflicts: linux-initramfs-tool
 Depends: ${misc:Depends}, libc6, busybox
 Description: Simple initramfs generator.
  Simple initramfs image generator for Turkman linux.
