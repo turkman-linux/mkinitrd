@@ -249,12 +249,22 @@ int main(int argc, char** argv) {
     // Erase initramfs
     (void)remove_directory("/");
 
-    // Switch root filesystem and start init
-    if (chroot("/rootfs") == -1) {
-        perror("Failed to chroot");
+    // move rootfs to /
+    if (chdir("/rootfs") < 0) {
+        perror("Failed to chdir to new root");
         create_shell();
     }
-    if (chdir("/") == -1) {
+    if(mount("/rootfs", "/", NULL, MS_MOVE, NULL) < 0){
+        perror("Failed to mount moving to /");
+        create_shell();
+    }
+
+    // Switch root filesystem and start init
+    if (chroot(".") < 0) {
+        perror("Failed to changer root");
+        create_shell();
+    }
+    if (chdir("/") < 0) {
         perror("Failed to chdir to root");
         create_shell();
     }
