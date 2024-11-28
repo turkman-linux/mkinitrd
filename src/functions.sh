@@ -75,9 +75,10 @@ function copy_module_tree() {
             continue
         fi
         find  /lib/modules/$kernel/$arg -type f | while read module ; do
-            copy_modules "$module"
+            copy_modules "$module" &
         done
     done
+    wait
 }
 
 function copy_files(){
