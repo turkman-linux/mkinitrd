@@ -11,7 +11,7 @@ debian:
     - apt install meson gcc ninja-build libc6-dev --no-install-recommends -y
     - meson setup build
     - ninja -C build
-    - ninja install
+    - ninja -C build install
 
 archlinux:
   image: archlinux:latest
@@ -25,7 +25,7 @@ archlinux:
     - pacman -Sy gcc meson ninja --noconfirm
     - meson setup build
     - ninja -C build
-    - ninja install
+    - ninja -C build install
 
 alpine:
   image: alpine:edge
@@ -39,7 +39,7 @@ alpine:
     - apk add meson ninja musl-dev gcc bash 
     - meson setup build
     - ninja -C build
-    - ninja install
+    - ninja -C build install
 
 turkman:
   image: registry.gitlab.com/turkman/devel/assets/docker-images
@@ -53,4 +53,4 @@ turkman:
     - ymp it meson ninja gcc bash binutils flex pkgconf --no-emerge --upgrade --ignore-quarantine
     - meson setup build
     - ninja -C build
-    - ninja install
+    - ninja -C build install
