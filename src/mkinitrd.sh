@@ -46,13 +46,22 @@ if [ -f $work/bin/busybox ] ; then
         fi
     done
 fi
+# depmod
+if [ -f $work/bin/depmod ] ; then
+    echo "Run depmod for: $kernel"
+    $work/bin/depmod -a -b $work/ $kernel
+fi
 #tree $work
 cur=$PWD
 cd $work
 chmod 755 -R $work
 echo "Compress: $output"
 find . | cpio -H newc -o | $compress > $output
+cd $cur
 # clear work
 rm -rf $work
 sync
-echo "Done"
+# mkunify
+if [ "$mkunify" == 1 ] ; then
+    exec mkunify -a -l /boot/vmlinuz-$kernel -i $output
+fi

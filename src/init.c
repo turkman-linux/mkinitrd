@@ -201,7 +201,7 @@ void run_scripts(const char *script_dir, const char *script_phase) {
             if (entry->d_name[0] == '.') {
                 continue;  // Skip hidden files
             }
-            snprintf(script, sizeof(script), "source %s/%s ; %s", script_dir, entry->d_name, script_phase);
+            snprintf(script, sizeof(script), "set -e ; source %s/%s ; %s", script_dir, entry->d_name, script_phase);
             printf("\033[32;1mRunning:\033[;0m %s\n", entry->d_name);
             pid_t pid = fork();
             if (pid == 0) {

@@ -1,10 +1,8 @@
 function init_top(){
-    depmod -a
     mkdir -p /run/udev
     if command -v systemd-udevd >/dev/null ; then
         echo "Systemd-udevd detected!"
         echo "Your system may not working good!"
-        sleep 3
         systemd-udevd --debug --daemon 2>/udev.debug
     elif command -v udevd > /dev/null ; then
         udevd --daemon --debug 2>/udev.debug

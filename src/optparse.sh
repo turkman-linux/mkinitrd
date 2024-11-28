@@ -3,9 +3,10 @@ output=""
 update=0
 kernel="$(uname -r)"
 basedir="/etc/initrd/"
-compress=cat
+compress=gzip
 config=""
 firmware=0
+mkunify=0
 
 function help_message() {
     echo "Usage: mkinitrd [OPTIONS]"
@@ -19,8 +20,9 @@ function help_message() {
     echo "                    Default is the $(uname -r)"
     echo "  -f               Enable firmware inclusion in the output."
     echo "  -c <config>      Specify the configuration file path."
-    echo "  -z <compress>    Specify the compression method. Default is 'cat'."
+    echo "  -z <compress>    Specify the compression method. Default is 'gzip'."
     echo "  -u               Update mode. Run in update mode if this flag is provided."
+    echo "  -a               Generate unified kernel image then add into efivars."
     echo "  -h, --help       Display this help message and exit."
 
 }
@@ -28,9 +30,11 @@ function help_message() {
 for arg in $@ ; do
     if [ "$arg" == "-u" ] ; then
         update=1
+    elif [ "$arg" == "-a" ] ; then
+        mkunify="1"
     fi
 done
-while getopts ":o:b:k:f:c:z:u" arg; do
+while getopts ":o:b:k:f:c:z:u:a" arg; do
   case $arg in
     o)
       output=$(realpath $OPTARG)
@@ -51,6 +55,7 @@ while getopts ":o:b:k:f:c:z:u" arg; do
       kernel=$OPTARG
       ;;
     u);;
+    a);;
     *)
       help_message
       exit 1
