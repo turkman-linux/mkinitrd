@@ -1,0 +1,56 @@
+debian:
+  image: debian:testing
+  stage: build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build
+  script:
+    - apt update
+    - apt full-upgrade -y
+    - apt install meson gcc ninja-build libc6-dev --no-install-recommends -y
+    - meson setup build
+    - ninja -C build
+    - ninja install
+
+archlinux:
+  image: archlinux:latest
+  stage: build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build
+  script:
+    - pacman -Syyu --noconfirm
+    - pacman -Sy gcc meson ninja --noconfirm
+    - meson setup build
+    - ninja -C build
+    - ninja install
+
+alpine:
+  image: alpine:edge
+  stage: build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build
+  script:
+    - apk update
+    - apk add meson ninja musl-dev gcc bash 
+    - meson setup build
+    - ninja -C build
+    - ninja install
+
+turkman:
+  image: registry.gitlab.com/turkman/devel/assets/docker-images
+  stage: build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build
+  script:
+    - ymp repo --update --ignore-gpg
+    - ymp it meson ninja gcc bash binutils flex pkgconf --no-emerge --upgrade --ignore-quarantine
+    - meson setup build
+    - ninja -C build
+    - ninja install
