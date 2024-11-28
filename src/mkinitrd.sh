@@ -54,12 +54,14 @@ fi
 #tree $work
 cur=$PWD
 cd $work
-chmod 755 -R $work
+chmod 755 $work/bin $work/lib
 echo "Compress: $output"
 find . | cpio -H newc -o | $compress > $output
 cd $cur
 # clear work
-rm -rf $work
+if [ "$keep" == 0 ] ; then
+    rm -rf $work
+fi
 sync
 # mkunify
 if [ "$mkunify" == 1 ] ; then

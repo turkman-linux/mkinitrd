@@ -7,6 +7,7 @@ compress=gzip
 config=""
 firmware=0
 mkunify=0
+keep=0
 
 function help_message() {
     echo "Usage: mkinitrd [OPTIONS]"
@@ -23,6 +24,7 @@ function help_message() {
     echo "  -z <compress>    Specify the compression method. Default is 'gzip'."
     echo "  -u               Update mode. Run in update mode if this flag is provided."
     echo "  -a               Generate unified kernel image then add into efivars."
+    echo "  -s               Don't remove work directory after generate."
     echo "  -h, --help       Display this help message and exit."
 
 }
@@ -32,9 +34,11 @@ for arg in $@ ; do
         update=1
     elif [ "$arg" == "-a" ] ; then
         mkunify="1"
+    elif [ "$arg" == "-s" ] ; then
+        keep="1"
     fi
 done
-while getopts ":o:b:k:f:c:z:u:a" arg; do
+while getopts ":o:b:k:f:c:z:uas" arg; do
   case $arg in
     o)
       output=$(realpath $OPTARG)
@@ -54,8 +58,7 @@ while getopts ":o:b:k:f:c:z:u:a" arg; do
     k)
       kernel=$OPTARG
       ;;
-    u);;
-    a);;
+    u|a|s);;
     *)
       help_message
       exit 1

@@ -1,3 +1,4 @@
 #!/bin/sh
 copy_modules hid_generic psmouse usbhid atkbd evdev
-copy_files /etc/os-release /etc/group /etc/fstab
+cat /etc/os-release > $work/etc/os-release
+cat /etc/group > $work/etc/group
