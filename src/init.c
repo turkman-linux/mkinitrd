@@ -12,7 +12,7 @@
 #include <signal.h>
 
 void create_shell() {
-    fprintf(stderr, "\033[31;1mBoot failed! Creating debug shell as PID: 1\033[;0m\n");
+    fprintf(stderr, "\033[31;1mBoot failed!\033[;0m Creating debug shell as PID: 1\n");
 
     // Redirect stdout, stderr, stdin to /dev/console
     FILE *rc;
@@ -23,9 +23,29 @@ void create_shell() {
 
     // Start a new shell (ash in this case)
     execlp("/bin/busybox", "ash", NULL);
-    // If execlp fails, fall back to a manual shell
+    // If execlp fails, stop and wait
     perror("Failed to exec ash");
-    exit(1);
+    while(1);
+}
+
+void sigsegv_handler(int signum) {
+    printf("\033[31;1mCaught SIGSEGV:\033[;0m Segmentation fault occurred!\n");
+    create_shell();
+}
+
+void connect_signal(){
+    struct sigaction sa;
+
+    // Set up the signal handler
+    sa.sa_handler = sigsegv_handler;
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+
+    // Register the signal handler for SIGSEGV
+    if (sigaction(SIGSEGV, &sa, NULL) == -1) {
+        perror("sigaction");
+        create_shell();
+    }
 }
 
 void mount_root(const char *root) {
@@ -207,7 +227,7 @@ void run_scripts(const char *script_dir, const char *script_phase) {
             if (pid == 0) {
                 execlp("/bin/busybox", "busybox", "ash", "-c", script, NULL);
                 perror("Failed to exec script");
-                exit(1);
+                create_shell();
             } else if (pid < 0) {
                 perror("Fork failed");
                 create_shell();
@@ -220,6 +240,7 @@ void run_scripts(const char *script_dir, const char *script_phase) {
         closedir(dir);
     } else {
         perror("Failed to open /scripts directory");
+        create_shell();
     }
 }
 
@@ -243,7 +264,7 @@ int main(int argc, char** argv) {
     // Run init scripts (init_bottom)
     run_scripts("/scripts", "init_bottom");
 
-    // Move mountpoints    
+    // Move mountpoints
     move_virtual_filesystems();
 
     // Erase initramfs
@@ -268,7 +289,7 @@ int main(int argc, char** argv) {
         perror("Failed to chdir to root");
         create_shell();
     }
-    
+
     char* init = "/sbin/init";
     if(getenv("init")){
         init = getenv("init");
