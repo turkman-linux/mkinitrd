@@ -18,6 +18,11 @@ if [ "$modules" == "most" ] ; then
         kernel/fs
 elif [ "$modules" == "dep" ] ; then
     copy_modules $(ls /sys/module/)
+elif [ "$modules" == "all" ] ; then
+    copy_files /lib/modules/$kernel/
+    if [ "$firmware" == "1" ] ; then
+        copy_files /lib/firmware/
+    fi
 elif [ "$modules" == "none" ] ; then
     : Module Copy Disabled
 fi
