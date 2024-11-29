@@ -53,15 +53,18 @@ void mount_root(const char *root) {
     struct stat st;
     if (stat("/rootfs", &st) == -1) {
         mkdir("/rootfs", 0755);
-        char path[1024];
-        if (root && strncmp(root, "UUID=", 5) == 0) {
-            snprintf(path, sizeof(path), "/dev/disk/by-uuid/%s", root + 5);
-            root = path;
-        }
         pid_t pid = fork();
+        char* rootfs_flags = "ro";
+        if(getenv("rootfsflags") != NULL){
+            rootfs_flags = getenv("rootfsflags");
+        }
+        char* rootfs_type = "auto";
+        if(getenv("rootfstype") != NULL){
+            rootfs_type = getenv("rootfstype");
+        }
         int status = 0;
         if(pid == 0) {
-            execlp("/bin/busybox", "mount", "-o", "ro", root, "/rootfs", NULL);
+            execlp("/bin/busybox", "mount", "-o", rootfs_flags, "-t", rootfs_type ,root, "/rootfs", NULL);
         }
         waitpid(pid, &status, 0);
         if (status){
@@ -202,6 +205,11 @@ void parse_kernel_cmdline() {
                 if(val != NULL && val-token > 0){
                     token[val-token] = '\0';
                     setenv(strdup(token), strdup(val+1), 1);
+                    if (strncmp(token, "root", 4) == 0 && strncmp(val, "UUID=", 5) == 0) {
+                        char path[1024];
+                        snprintf(path, sizeof(path), "/dev/disk/by-uuid/%s", val + 5);
+                        setenv("root", path, 1);
+                    }
                 }
                 token = strtok(NULL, " ");
             }
