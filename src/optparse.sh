@@ -36,9 +36,11 @@ for arg in $@ ; do
         mkunify="1"
     elif [ "$arg" == "-s" ] ; then
         keep="1"
+    elif [ "$arg" == "-f" ] ; then
+        firmware="1"
     fi
 done
-while getopts ":o:b:k:f:c:z:uas" arg; do
+while getopts ":o:b:k:c:z:fuas" arg; do
   case $arg in
     o)
       output=$(realpath $OPTARG)
@@ -49,16 +51,13 @@ while getopts ":o:b:k:f:c:z:uas" arg; do
     z)
       compress=$OPTARG
       ;;
-    f)
-      firmware=1
-      ;;
     b)
       basedir=$(realpath $OPTARG)
       ;;
     k)
       kernel=$OPTARG
       ;;
-    u|a|s);;
+    u|a|s|f);;
     *)
       help_message
       exit 1
