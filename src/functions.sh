@@ -41,6 +41,10 @@ function copy_modules(){
         if ! $(which modinfo) -k $kernel "$module" 2>/dev/null | : ; then
             continue
         fi
+        if [ -f "$module" ] ; then
+            mkdir -p "$work/"${module%/*}
+            cp -f "$module" "$work/"$module
+        fi
         $(which modinfo) -k $kernel "$module" | tr -s " " | while read line; do
             name=${line/:*/}
             value=${line/*:/}
