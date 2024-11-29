@@ -15,7 +15,7 @@ if [ "$modules" == "most" ] ; then
         kernel/drivers/md \
         kernel/drivers/mmc \
         kernel/drivers/fireware \
-        kernel/fs \
+        kernel/fs
 elif [ "$modules" == "dep" ] ; then
     copy_modules $(ls /sys/module/)
 elif [ "$modules" == "none" ] ; then
