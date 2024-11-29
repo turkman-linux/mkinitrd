@@ -29,6 +29,7 @@ void create_shell() {
 }
 
 void sigsegv_handler(int signum) {
+    (void)signum;
     printf("\033[31;1mCaught SIGSEGV:\033[;0m Segmentation fault occurred!\n");
     create_shell();
 }
