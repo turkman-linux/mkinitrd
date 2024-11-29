@@ -38,10 +38,10 @@ alias copy_exec=copy_binary
 
 function copy_modules(){
     for module in $@ ; do
-        if ! $(which modinfo) -k $kernel "$module" >/dev/null ; then
+        if ! $(which modinfo) -k $kernel "$module" 2>/dev/null | : ; then
             continue
         fi
-        $(which modinfo) -k $kernel "$module" | tr -s " "| while read line; do
+        $(which modinfo) -k $kernel "$module" | tr -s " " | while read line; do
             name=${line/:*/}
             value=${line/*:/}
             value=${value/ /}
