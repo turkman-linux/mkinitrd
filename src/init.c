@@ -55,8 +55,8 @@ void mount_root(const char *root) {
         mkdir("/rootfs", 0755);
         pid_t pid = fork();
         char* rootfs_flags = "ro";
-        if(getenv("rootfsflags") != NULL){
-            rootfs_flags = getenv("rootfsflags");
+        if(getenv("rootflags") != NULL){
+            rootfs_flags = getenv("rootflags");
         }
         char* rootfs_type = "auto";
         if(getenv("rootfstype") != NULL){
