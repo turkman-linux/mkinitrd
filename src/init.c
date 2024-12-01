@@ -220,18 +220,30 @@ void parse_kernel_cmdline() {
     }
 }
 
+int compare(const void *a, const void *b) {
+    return strcmp(*(const char **)a, *(const char **)b);
+}
+
 void run_scripts(const char *script_dir, const char *script_phase) {
     DIR *dir = opendir(script_dir);
     if (dir) {
         char script[1024];
+        char *modules[1024];
         int status;
+        int count = 0;
         struct dirent *entry;
         while ((entry = readdir(dir)) != NULL) {
             if (entry->d_name[0] == '.') {
                 continue;  // Skip hidden files
             }
-            snprintf(script, sizeof(script), "set -e ; source %s/%s ; %s", script_dir, entry->d_name, script_phase);
-            printf("\033[32;1mRunning:\033[;0m %s\n", entry->d_name);
+            modules[count] = strdup(entry->d_name);
+            count++;
+        }
+        closedir(dir);
+        qsort(modules, count, sizeof(char *), compare);
+        for(int i=0; i< count ; i++){
+            snprintf(script, sizeof(script), "set -e ; source %s/%s ; %s", script_dir, modules[i], script_phase);
+            printf("\033[32;1mRunning:\033[;0m %s\n", modules[i]);
             pid_t pid = fork();
             if (pid == 0) {
                 execlp("/bin/busybox", "busybox", "ash", "-c", script, NULL);
@@ -246,7 +258,9 @@ void run_scripts(const char *script_dir, const char *script_phase) {
                 create_shell();
             }
         }
-        closedir(dir);
+        for (int i = 0; i < count; i++) {
+            free(modules[i]);
+        }
     } else {
         perror("Failed to open /scripts directory");
         create_shell();
