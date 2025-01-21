@@ -32,7 +32,7 @@ show_help() {
 detect_root() {
     # detect running system disk
     root_disk=$(realpath $(cat /proc/mounts | grep " / " | cut -f1 -d" "))
-    root_efi_disk=$(realpath $(cat /proc/mounts | grep " /boot/efi " | cut -f1 -d" "))
+    root_efi_disk=$(realpath $(cat /proc/mounts | grep " /boot/efi " | cut -f1 -d" ") 2>/dev/null)
     root_disk=${root_disk/*\//}
     root_efi_disk=${root_efi_disk/*\//}
     if [ "${root_disk/[0-9]*/}" == "nvme" ] || [ "${root_disk/[0-9]*/}" == "mmcblk" ] ; then

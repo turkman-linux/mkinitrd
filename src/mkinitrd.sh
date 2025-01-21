@@ -14,6 +14,8 @@ if [ -f "$output" ] && [ "$update" != 1 ] ; then
     echo "To regenerate it, please use the '-u' option."
     exit 1
 fi
+# depmod kernel
+depmod -a "$kernel"
 # create work
 export work=$(mktemp -d)
 echo "Create workdir: $work"
