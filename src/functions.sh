@@ -51,16 +51,16 @@ function get_modinfo(){
         modinfo /tmp/module-"$rand".ko
         rm -f /tmp/module-"$rand".ko >/dev/null
     else
-        modinfo "$file"
+        modinfo -k $kernel "$file"
     fi
 }
 
 function copy_modules(){
     for module in $@ ; do
-        if ! $(which modinfo) -k $kernel "$module" >/dev/null ; then
+        if ! get_modinfo "$module" >/dev/null ; then
             continue
         fi
-        $(which modinfo) -k $kernel "$module" | tr -s " " | while read line; do
+        get_modinfo "$module" | tr -s " " | while read line; do
             name=${line/:*/}
             value=${line/*:/}
             value=${value/ /}
