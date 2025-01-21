@@ -36,6 +36,25 @@ function copy_binary(){
 }
 alias copy_exec=copy_binary
 
+function get_modinfo(){
+    file="$1"
+    suffix=${file/*./}
+    rand="$RANDOM"
+    if [ "$suffix" == "gz" ] ; then
+        cp -f "$file" /tmp/module-"$rand".ko.gz >/dev/null
+        gzip -d /tmp/module-"$rand".ko.gz  >/dev/null
+        modinfo /tmp/module-"$rand".ko
+        rm -f /tmp/module-"$rand".ko >/dev/null
+    elif [ "$suffix" == "xz" ] ; then
+        cp -f "$file" /tmp/module-"$rand".ko.xz >/dev/null
+        xz -d /tmp/module-"$rand".ko.gz  >/dev/null
+        modinfo /tmp/module-"$rand".ko
+        rm -f /tmp/module-"$rand".ko >/dev/null
+    else
+        modinfo "$file"
+    fi
+}
+
 function copy_modules(){
     for module in $@ ; do
         if ! $(which modinfo) -k $kernel "$module" >/dev/null ; then
