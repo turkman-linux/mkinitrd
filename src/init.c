@@ -62,7 +62,17 @@ void mount_root(const char *root) {
         if(getenv("rootfstype") != NULL){
             rootfs_type = getenv("rootfstype");
         }
+        // wait until ready for root
         int status = 0;
+        while(lstat(root, &st) == -1){
+            printf("Waiting for root: %s\n", root);
+            sleep(1);
+            status++;
+            if(status > 10) {
+                create_shell();
+            }
+        }
+        status = 0;
         if(pid == 0) {
             execlp("/bin/busybox", "mount", "-o", rootfs_flags, "-t", rootfs_type ,root, "/rootfs", NULL);
         }
