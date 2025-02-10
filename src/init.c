@@ -297,6 +297,16 @@ int main(int argc, char** argv) {
     // Run init scripts (init_bottom)
     run_scripts("/scripts", "init_bottom");
 
+    // Check Winzort OEM
+    struct stat st;
+    if (stat("/sys/firmware/acpi/tables/MSDM", &st) == 0) {
+        printf("\033c");
+        printf("\033[31;1mWarning:\033[;0m OEM Detected!\n");
+        printf("Your system may not working good\n");
+        printf("You system will boot in 5 secs ...\n");
+        sleep(5);
+    }
+
     // Move mountpoints
     move_virtual_filesystems();
 
@@ -322,6 +332,9 @@ int main(int argc, char** argv) {
         perror("Failed to chdir to root");
         create_shell();
     }
+
+    // Clear screen again
+    printf("\033c");
 
     char* init = "/sbin/init";
     if(getenv("init")){

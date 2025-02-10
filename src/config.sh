@@ -7,3 +7,6 @@ hooks="base eudev modules ext4"
 # * all = copy all modules
 # * none = do not copy any modules
 modules="most"
+
+# Filesystems
+filesystems="ext4"

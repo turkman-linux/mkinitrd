@@ -64,8 +64,9 @@ cd $cur
 if [ "$keep" == 0 ] ; then
     rm -rf $work
 fi
-sync
 # mkunify
 if [ "$mkunify" == 1 ] ; then
     exec mkunify -a -l /boot/vmlinuz-$kernel -i $output
 fi
+# force sync
+echo s > /proc/sysrq-trigger

@@ -71,16 +71,14 @@ function copy_modules(){
                 if [ -f "$work/"$value ] ; then
                     continue
                 fi
-                mkdir -p "$work/"${value%/*}
-                cp -f $value "$work/"$value
+                install -Dm644 $value "$work/"$value
             elif [ "$name" == "depends" ] ; then
                 for dep in ${value//,/ } ; do
                     copy_modules $dep
                 done
             elif [ "$name" == "firmware" ] && [ "$firmware" == "1" ]; then
                 if [ -f /lib/firmware/$value ] ; then
-                    mkdir -p "$work/"/lib/firmware/${value%/*}
-                    cp -f /lib/firmware/$value "$work/lib/firmware/"$value
+                    install -Dm644 /lib/firmware/$value "$work/lib/firmware/"$value
                 fi
             fi
         done
