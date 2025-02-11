@@ -3,14 +3,12 @@
 function copy_binary(){
     for bin in $* ; do
         mkdir -p "$work"/lib "$work/bin"
-        if command -v "$bin" | : ; then
-            bin=$(which $bin)
-        fi
+        bin=$(command -v $bin)
         if ! [ -f "$bin" ] ; then
             echo "$bin not found" > /dev/stderr
             continue
         fi
-        install "$bin" "$work/bin/"
+        install -Dm755 "$bin" "$work/bin/"
         if ! ldd "$bin" 2>/dev/null | grep "=" >/dev/null; then
             continue
         fi
