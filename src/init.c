@@ -279,6 +279,11 @@ void run_scripts(const char *script_dir, const char *script_phase) {
 
 int main(int argc, char** argv) {
     (void)argc; (void)argv;
+    // Check pid 1
+    if(getpid() != 1){
+        printf("Init must be PID 1\n");
+        return 1;
+    }
     // Clear screen
     printf("\033c");
 
