@@ -215,9 +215,9 @@ void parse_kernel_cmdline() {
                 if(val != NULL && val-token > 0){
                     token[val-token] = '\0';
                     setenv(strdup(token), strdup(val+1), 1);
-                    if (strncmp(token, "root", 4) == 0 && strncmp(val, "UUID=", 5) == 0) {
+                    if (strncmp(token, "root", 4) == 0 && strncmp(val+1, "UUID=", 5) == 0) {
                         char path[1024];
-                        snprintf(path, sizeof(path), "/dev/disk/by-uuid/%s", val + 5);
+                        snprintf(path, sizeof(path), "/dev/disk/by-uuid/%s", val + 6);
                         setenv("root", path, 1);
                     }
                 }
