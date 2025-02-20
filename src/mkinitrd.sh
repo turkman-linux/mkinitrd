@@ -28,15 +28,15 @@ ln -s bin $work/sbin
 cp -f $basedir/init $work/init
 copy_binary ldconfig busybox
 i=0
-for module in $hooks ; do
-    hook="$basedir/hooks/$module.sh"
-    script="$basedir/scripts/$module.sh"
+for mod in $hooks ; do
+    hook="$basedir/hooks/$mod.sh"
+    script="$basedir/scripts/$mod.sh"
     if [ -f $hook ] ; then
-        echo "Run Hook: $module"
+        echo "Run Hook: $mod"
         source $hook
     fi
     if [ -f $script ] ; then
-        cp -f $script $work/scripts/"$i-$module".sh
+        cp -f $script $work/scripts/"$i-$mod".sh
         i=$(($i+1))
     fi
 done
