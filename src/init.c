@@ -53,7 +53,6 @@ void mount_root(const char *root) {
     struct stat st;
     if (stat("/rootfs", &st) == -1) {
         mkdir("/rootfs", 0755);
-        pid_t pid = fork();
         char* rootfs_flags = "ro";
         if(getenv("rootflags") != NULL){
             rootfs_flags = getenv("rootflags");
@@ -73,6 +72,7 @@ void mount_root(const char *root) {
             }
         }
         status = 0;
+        pid_t pid = fork();
         if(pid == 0) {
             execlp("/bin/busybox", "mount", "-o", rootfs_flags, "-t", rootfs_type ,root, "/rootfs", NULL);
         }
@@ -255,10 +255,10 @@ void run_scripts(const char *script_dir, const char *script_phase) {
             snprintf(script, sizeof(script), "set -e ; source %s/%s ; %s", script_dir, modules[i], script_phase);
             printf("\033[32;1mRunning:\033[;0m %s\n", modules[i]);
             pid_t pid = fork();
-            if (pid == 0) {
+            if (getpid() > 1) {
                 execlp("/bin/busybox", "busybox", "ash", "-c", script, NULL);
                 perror("Failed to exec script");
-                create_shell();
+                exit(1);
             } else if (pid < 0) {
                 perror("Fork failed");
                 create_shell();
