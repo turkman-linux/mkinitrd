@@ -5,7 +5,7 @@ function init_top(){
     fi
     modprobe $rootfstype || true
     if command -v fsck.$rootfstype >/dev/null ; then
-        fsck.$rootfstype "$root" || true
+        yes "" | fsck.$rootfstype "$root" || true
     fi
 }
 
