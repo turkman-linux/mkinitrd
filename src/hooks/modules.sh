@@ -15,6 +15,8 @@ if [ "$modules" == "most" ] ; then
         kernel/drivers/md \
         kernel/drivers/mmc \
         kernel/drivers/fireware \
+        kernel/drivers/input/keyboard \
+        kernel/drivers/input/serio \
         kernel/fs
 elif [ "$modules" == "dep" ] ; then
     copy_modules $(ls /sys/module/)
