@@ -194,7 +194,7 @@ static void move_virtual_filesystems() {
     if (mount("/proc", "/rootfs/proc", NULL, MS_MOVE, NULL) == -1) {
         perror("Failed to move mount /proc");
     }
-    if (mount("/run", "/run", NULL, MS_MOVE, NULL) == -1) {
+    if (mount("/run", "/rootfs/run", NULL, MS_MOVE, NULL) == -1) {
         perror("Failed to move mount /run");
     }
     create_dir_if_not_exists("/rootfs/dev/pts");
