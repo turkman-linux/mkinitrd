@@ -53,7 +53,7 @@ function get_modinfo(){
     fi
 }
 
-function copy_modules(){
+function print_copy_modules(){
     for module in $@ ; do
         if ! get_modinfo "$module" >/dev/null ; then
             continue
@@ -69,18 +69,22 @@ function copy_modules(){
                 if [ -f "$work/"$value ] ; then
                     continue
                 fi
-                install -Dm644 $value "$work/"$value
+                echo install -Dm644 $value "$work/"$value
             elif [ "$name" == "depends" ] ; then
                 for dep in ${value//,/ } ; do
-                    copy_modules $dep
+                    print_copy_modules $dep
                 done
             elif [ "$name" == "firmware" ] && [ "$firmware" == "1" ]; then
                 if [ -f /lib/firmware/$value ] ; then
-                    install -Dm644 /lib/firmware/$value "$work/lib/firmware/"$value
+                    echo install -Dm644 /lib/firmware/$value "$work/lib/firmware/"$value
                 fi
             fi
         done
     done
+}
+
+function copy_modules(){
+    print_copy_modules "$@" | sort | uniq | sh -e
 }
 alias manual_add_modules=copy_modules
 
@@ -90,9 +94,10 @@ function copy_module_tree() {
             continue
         fi
         find  /lib/modules/$kernel/$arg -type f | while read module ; do
-            copy_modules "$module" &
+            print_copy_modules "$module" &
         done
-    done
+        wait
+    done | sort | uniq | sh -e
     wait
 }
 

@@ -168,6 +168,7 @@ void mount_virtual_filesystems() {
     create_dir_if_not_exists("/dev");
     create_dir_if_not_exists("/sys");
     create_dir_if_not_exists("/proc");
+    create_dir_if_not_exists("/run");
     
     if (mount("devtmpfs", "/dev", "devtmpfs", 0, NULL) == -1) {
         perror("Failed to mount devtmpfs");
@@ -177,6 +178,9 @@ void mount_virtual_filesystems() {
     }
     if (mount("proc", "/proc", "proc", 0, NULL) == -1) {
         perror("Failed to mount proc");
+    }
+    if (mount("tmpfs", "/run", "tmpfs", 0, NULL) == -1) {
+        perror("Failed to mount run");
     }
 }
 
@@ -189,6 +193,9 @@ void move_virtual_filesystems() {
     }
     if (mount("/proc", "/rootfs/proc", NULL, MS_MOVE, NULL) == -1) {
         perror("Failed to move mount /proc");
+    }
+    if (mount("/run", "/run", NULL, MS_MOVE, NULL) == -1) {
+        perror("Failed to move mount /run");
     }
     create_dir_if_not_exists("/rootfs/dev/pts");
     if (mount("devpts", "/rootfs/dev/pts", "devpts", 0, NULL) == -1) {
