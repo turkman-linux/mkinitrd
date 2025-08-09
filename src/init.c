@@ -11,7 +11,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-void create_shell() {
+static void create_shell() {
     fprintf(stderr, "\033[31;1mBoot failed!\033[;0m Creating debug shell as PID: 1\n");
 
     // Redirect stdout, stderr, stdin to /dev/console
@@ -28,13 +28,13 @@ void create_shell() {
     while(1);
 }
 
-void sigsegv_handler(int signum) {
+static void sigsegv_handler(int signum) {
     (void)signum;
     printf("\033[31;1mCaught SIGSEGV:\033[;0m Segmentation fault occurred!\n");
     create_shell();
 }
 
-void connect_signal(){
+static void connect_signal(){
     struct sigaction sa;
 
     // Set up the signal handler
@@ -49,7 +49,7 @@ void connect_signal(){
     }
 }
 
-void mount_root(const char *root) {
+static void mount_root(const char *root) {
     struct stat st;
     if (stat("/rootfs", &st) == -1) {
         mkdir("/rootfs", 0755);
@@ -86,7 +86,7 @@ void mount_root(const char *root) {
     }
 }
 
-void create_dir_if_not_exists(const char *path) {
+static void create_dir_if_not_exists(const char *path) {
     struct stat st;
     if (stat(path, &st) == -1) {
         if (mkdir(path, 0755) == -1) {
@@ -96,7 +96,7 @@ void create_dir_if_not_exists(const char *path) {
     }
 }
 
-int is_mount_point(const char *dir) {
+static int is_mount_point(const char *dir) {
     // detect directory is a mountpoint
     struct stat mountpoint;
     struct stat parent;
@@ -116,7 +116,7 @@ int is_mount_point(const char *dir) {
     return (mountpoint.st_dev != parent.st_dev);
 }
 
-int remove_directory(const char *path) {
+static int remove_directory(const char *path) {
     // remove directory recursivelly
     // skip mountpoints
     if(is_mount_point(path)){
@@ -164,7 +164,7 @@ int remove_directory(const char *path) {
     return 1;
 }
 
-void mount_virtual_filesystems() {
+static void mount_virtual_filesystems() {
     create_dir_if_not_exists("/dev");
     create_dir_if_not_exists("/sys");
     create_dir_if_not_exists("/proc");
@@ -184,7 +184,7 @@ void mount_virtual_filesystems() {
     }
 }
 
-void move_virtual_filesystems() {
+static void move_virtual_filesystems() {
     if (mount("/dev", "/rootfs/dev", NULL, MS_MOVE, NULL) == -1) {
         perror("Failed to move mount /dev");
     }
@@ -203,7 +203,7 @@ void move_virtual_filesystems() {
     }
 }
 
-void parse_kernel_cmdline() {
+static void parse_kernel_cmdline() {
     FILE *cmdline = fopen("/proc/cmdline", "r");
     if (cmdline) {
         char *line = NULL;
@@ -237,11 +237,11 @@ void parse_kernel_cmdline() {
     }
 }
 
-int compare(const void *a, const void *b) {
+static int compare(const void *a, const void *b) {
     return strcmp(*(const char **)a, *(const char **)b);
 }
 
-void run_scripts(const char *script_dir, const char *script_phase) {
+static void run_scripts(const char *script_dir, const char *script_phase) {
     DIR *dir = opendir(script_dir);
     if (dir) {
         char script[1024];
@@ -293,6 +293,9 @@ int main(int argc, char** argv) {
     }
     // Clear screen
     printf("\033c");
+    
+    // Connect signals
+    connect_signal();
 
     // Mount virtual filesystems
     mount_virtual_filesystems();
