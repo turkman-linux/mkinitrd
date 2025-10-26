@@ -11,7 +11,7 @@ add_project_arguments('-Werror', language: 'c')
 add_project_arguments('-fvisibility=hidden', language: 'c')
 add_project_arguments('-fno-plt', language: 'c')
 
-executable('init', 'src/init.c', install_dir:'/etc/initrd', install: true)
+executable('init', ['src/init.c', 'src/modprobe.c'], install_dir:'/etc/initrd', install: true)
 
 install_subdir('src/hooks/', install_dir: '/etc/initrd/')
 install_subdir('src/scripts/', install_dir: '/etc/initrd/')

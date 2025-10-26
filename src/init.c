@@ -11,6 +11,8 @@
 #include <sys/wait.h>
 #include <signal.h>
 
+extern void modprobe();
+
 static void create_shell() {
     fprintf(stderr, "\033[31;1mBoot failed!\033[;0m Creating debug shell as PID: 1\n");
 
@@ -302,6 +304,9 @@ int main(int argc, char** argv) {
 
     // Parse kernel cmdline and set environment variables
     parse_kernel_cmdline();
+
+    // Load modules
+    modprobe();
 
     // Run init scripts (init_top)
     run_scripts("/scripts", "init_top");

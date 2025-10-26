@@ -1,3 +1,15 @@
+#!/bin/sh
+copy_binary kmod
+for f in depmod insmod modinfo modprobe rmmod ; do
+    rm -f $work/bin/$f
+    ln -s kmod $work/bin/$f
+done
+
+for file in /lib/modules/$kernel/modules.* ; do
+    copy_files $file
+done
+
+
 if [ "$modules" == "most" ] ; then
     copy_module_tree \
         kernel/lib \
