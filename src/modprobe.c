@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/sysinfo.h>
 
 #define STARTSWITH(A, B) (strncmp(A, B, strlen(B)) == 0)
 
@@ -105,7 +106,10 @@ void modprobe() {
 
     aliases[alias_count] = NULL;  // Null-terminate the aliases array
 
-    const size_t NUM_THREADS = 4;
+    size_t NUM_THREADS = get_nprocs();
+    if(NUM_THREADS < 1){
+        NUM_THREADS = 1;
+    }
     pthread_t threads[NUM_THREADS];
     modprobe_t m[NUM_THREADS];
 
