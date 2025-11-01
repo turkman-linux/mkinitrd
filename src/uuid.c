@@ -50,7 +50,7 @@ char* find_uuid(const char* partition_uuid){
     return part;
 }
 
-// gcc -o uuid uuid.c `pkgconf --cflags --libs libblkid`
+// gcc -o uuid uuid.c `pkgconf --cflags --libs blkid` -DUUIDTEST
 #ifdef UUIDTEST
 void main(int argc, char** argv){
     printf("%s\n", find_uuid(argv[1]));
