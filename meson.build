@@ -1,6 +1,6 @@
 project('mkinitrd', 'c')
 
-srcs = ['config.sh',
+files = ['config.sh',
         'functions.sh',
         'optparse.sh'
 ]
@@ -11,12 +11,21 @@ add_project_arguments('-Werror', language: 'c')
 add_project_arguments('-fvisibility=hidden', language: 'c')
 add_project_arguments('-fno-plt', language: 'c')
 
-executable('init', ['src/init.c', 'src/modprobe.c'], install_dir:'/etc/initrd', install: true)
+# Dependency
+blkid_dep = dependency('blkid')
+
+srcs = [
+    'src/init.c',
+    'src/modprobe.c',
+    'src/uuid.c'
+]
+
+executable('init', srcs, install_dir:'/etc/initrd', dependencies: blkid_dep, install: true)
 
 install_subdir('src/hooks/', install_dir: '/etc/initrd/')
 install_subdir('src/scripts/', install_dir: '/etc/initrd/')
-foreach src : srcs
-    install_data('src'/src, install_dir: '/etc/initrd/')
+foreach file : files
+    install_data('src'/file, install_dir: '/etc/initrd/')
 endforeach
 install_data(
     'src/mkinitrd.sh',

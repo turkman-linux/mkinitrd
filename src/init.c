@@ -12,6 +12,7 @@
 #include <signal.h>
 
 extern void modprobe();
+extern char* find_uuid(const char* uuid);
 
 static void create_shell() {
     fprintf(stderr, "\033[31;1mBoot failed!\033[;0m Creating debug shell as PID: 1\n");
@@ -225,9 +226,11 @@ static void parse_kernel_cmdline() {
                     token[val-token] = '\0';
                     setenv(strdup(token), strdup(val+1), 1);
                     if (strncmp(token, "root", 4) == 0 && strncmp(val+1, "UUID=", 5) == 0) {
-                        char path[1024];
-                        snprintf(path, sizeof(path), "/dev/disk/by-uuid/%s", val + 6);
-                        setenv("root", path, 1);
+                        char* part = find_uuid(val+6);
+                        if(part){
+                            setenv("root", part, 1);
+                            free(part);
+                        }
                     }
                 }
                 token = strtok(NULL, " ");
