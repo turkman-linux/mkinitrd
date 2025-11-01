@@ -229,7 +229,6 @@ static void parse_kernel_cmdline() {
                         char* part = find_uuid(val+6);
                         if(part){
                             setenv("root", part, 1);
-                            free(part);
                         }
                     }
                 }
