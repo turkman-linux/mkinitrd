@@ -1,5 +1,24 @@
 #!/bin/sh
+function get_part(){
+    # find uuid root and mount
+    if [ "${root#UUID=}" != "$root" ]; then
+        for dev in /sys/class/block/* ; do
+            part="/dev/${dev##*/}"
+            uuid=$(blkid -s UUID -o value "$part")
+            if [ "${root#UUID=}" == "${uuid}" ] ; then
+                echo "$part"
+                break
+            fi
+        done
+    fi
+}
+
 function init_top(){
+    if [ "${root#UUID=}" != "$root" ]; then
+        # mark as custom rootfs mount
+        mkdir -p /rootfs
+        export root=$(get_part)
+    fi
     if [ "$rootfstype" == "" ] ; then
         rootfstype=ext4
     fi
@@ -9,22 +28,10 @@ function init_top(){
     fi
     modprobe sd_mod || true
     modprobe sr_mod || true
-    if [ "${root#UUID=}" != "$root" ]; then
-        # mark as custom rootfs mount
-        mkdir -p /rootfs
-    fi
 }
 
 function init_bottom(){
-    # find uuid root and mount
     if [ "${root#UUID=}" != "$root" ]; then
-        for dev in /sys/class/block/* ; do
-            part="/dev/${dev##*/}"
-            uuid=$(blkid -s UUID -o value)
-            if [ "${root#UUID=}" == "${uuid}" ] ; then
-                mount -t auto "${part}" /rootfs
-                break
-            fi
-        done
+        mount -t auto $(get_part) /rootfs
     fi
 }
