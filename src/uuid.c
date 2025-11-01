@@ -33,12 +33,12 @@ char* find_uuid(const char* partition_uuid){
         perror("opendir");
         return NULL;
     }
-    char devname[PATH_MAX];
-    char* part;
+    char* part = NULL;
     while ((entry = readdir(dp)) != NULL) {
         if (entry->d_name[0] == '.') {
             continue;
         }
+        char devname[PATH_MAX];
         strcpy(devname, "/dev/");
         strcat(devname, entry->d_name);
         if(check_uuid(devname, partition_uuid)){
@@ -50,3 +50,9 @@ char* find_uuid(const char* partition_uuid){
     return part;
 }
 
+// gcc -o uuid uuid.c `pkgconf --cflags --libs libblkid`
+#ifdef UUIDTEST
+void main(int argc, char** argv){
+    printf("%s\n", find_uuid(argv[1]));
+}
+#endif
