@@ -37,17 +37,21 @@ alias copy_exec=copy_binary
 function get_modinfo(){
     file="$1"
     suffix=${file/*./}
-    rand="$RANDOM"
+    name=$(basename "$file" | cut -f1 -d".")
     if [ "$suffix" == "gz" ] ; then
-        cp -f "$file" /tmp/module-"$rand".ko.gz >/dev/null
-        gzip -d /tmp/module-"$rand".ko.gz  >/dev/null
-        modinfo /tmp/module-"$rand".ko
-        rm -f /tmp/module-"$rand".ko >/dev/null
+        if [ ! -f /tmp/module/"$name".ko ] ; then
+            cp -f "$file" /tmp/module/"$name".ko.gz >/dev/null
+            gzip -d /tmp/module/"$name".ko.gz  >/dev/null
+            rm -f /tmp/module/"$name".ko.gz
+        fi
+        modinfo /tmp/module/"$name".ko
     elif [ "$suffix" == "xz" ] ; then
-        cp -f "$file" /tmp/module-"$rand".ko.xz >/dev/null
-        xz -d /tmp/module-"$rand".ko.gz  >/dev/null
-        modinfo /tmp/module-"$rand".ko
-        rm -f /tmp/module-"$rand".ko >/dev/null
+        if [ ! -f /tmp/module/"$name".ko ] ; then
+            cp -f "$file" /tmp/module/"$name".ko.xz >/dev/null
+            xz -d /tmp/module/"$name".ko.xz  >/dev/null
+            rm -f /tmp/module/"$name".ko.xz
+        fi
+        modinfo /tmp/module/"$name".ko
     else
         modinfo -k $kernel "$file"
     fi
@@ -84,7 +88,7 @@ function print_copy_modules(){
 }
 
 function copy_modules(){
-    print_copy_modules "$@" | sort | uniq | sh -e
+    print_copy_modules "$@" | sort | uniq | sh +e
 }
 alias manual_add_modules=copy_modules
 
@@ -96,7 +100,6 @@ function copy_module_tree() {
         find  /lib/modules/$kernel/$arg -type f | while read module ; do
             print_copy_modules "$module" &
         done
-        wait
     done | sort | uniq | sh -e
     wait
 }
