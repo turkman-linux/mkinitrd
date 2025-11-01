@@ -1,6 +1,7 @@
 #!/bin/busybox ash
 set -e
 set -o pipefail
+mkdir -p /tmp/module
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin
 if [ -f $(dirname $0)/optparse.sh ] ; then
     source $(dirname $0)/optparse.sh
@@ -63,6 +64,7 @@ cd $cur
 # clear work
 if [ "$keep" == 0 ] ; then
     rm -rf $work
+    rm -rf /tmp/module
 fi
 # mkunify
 if [ "$mkunify" == 1 ] ; then

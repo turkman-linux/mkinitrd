@@ -40,3 +40,6 @@ elif [ "$modules" == "all" ] ; then
 elif [ "$modules" == "none" ] ; then
     : Module Copy Disabled
 fi
+
+find $work/lib/modules -type f -iname "*.ko.gz" -exec gzip -d {} \;
+find $work/lib/modules -type f -iname "*.ko.xz" -exec xz -d {} \;
