@@ -54,6 +54,7 @@ static void connect_signal(){
 
 static void mount_root(const char *root) {
     struct stat st;
+    char* rootfs = (char*)root;
     if (stat("/rootfs", &st) == -1) {
         mkdir("/rootfs", 0755);
         char* rootfs_flags = "ro";
@@ -67,7 +68,7 @@ static void mount_root(const char *root) {
         // wait until ready for root
         int status = 0;
         while(lstat(root, &st) == -1){
-            printf("Waiting for root: %s\n", root);
+            printf("Waiting for root: %s\n", rootfs);
             sleep(1);
             status++;
             if(status > 10) {
@@ -77,14 +78,14 @@ static void mount_root(const char *root) {
         status = 0;
         pid_t pid = fork();
         if(pid == 0) {
-            execlp("/bin/busybox", "mount", "-o", rootfs_flags, "-t", rootfs_type ,root, "/rootfs", NULL);
+            execlp("/bin/busybox", "mount", "-o", rootfs_flags, "-t", rootfs_type ,rootfs, "/rootfs", NULL);
         }
         waitpid(pid, &status, 0);
         if (status){
             perror("Failed to mount root");
             create_shell();
         }
-        int rc = symlink(root, "/dev/root");
+        int rc = symlink(rootfs, "/dev/root");
         (void)rc;
     }
 }
@@ -211,35 +212,39 @@ static void parse_kernel_cmdline() {
     if (cmdline) {
         char *line = NULL;
         size_t len = 0;
-        while (getline(&line, &len, cmdline) != -1) {
-            // strip newline
-            while (line[strlen(line)-1] == '\n'){
-                line[strlen(line)-1] = '\0';
-                len--;
+
+        if (getline(&line, &len, cmdline) != -1) {
+            // Strip newline
+            size_t line_length = strlen(line);
+            if (line[line_length - 1] == '\n') {
+                line[line_length - 1] = '\0';
             }
-            // split by " "
+
+            // Split by space
             char *token = strtok(line, " ");
             while (token != NULL) {
-                // check = exists
-                char* val = strstr(token, "=");
-                if(val != NULL && val-token > 0){
-                    token[val-token] = '\0';
-                    setenv(strdup(token), strdup(val+1), 1);
-                    if (strncmp(token, "root", 4) == 0 && strncmp(val+1, "UUID=", 5) == 0) {
-                        char* part = find_uuid(val+6);
-                        if(part){
-                            setenv("root", part, 1);
-                        }
+                char *val = strstr(token, "=");
+                if (val != NULL && val - token > 0) {
+                    token[val - token] = '\0';
+                    
+                    char *key = strdup(token);
+                    char *value = strdup(val + 1);
+                    if (key && value) {
+                        setenv(key, value, 1);
                     }
+                    free(key);
+                    free(value);
                 }
                 token = strtok(NULL, " ");
             }
         }
+        free(line);
         fclose(cmdline);
     } else {
         perror("Failed to read /proc/cmdline");
     }
 }
+
 
 static int compare(const void *a, const void *b) {
     return strcmp(*(const char **)a, *(const char **)b);

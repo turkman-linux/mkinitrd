@@ -11,16 +11,12 @@ add_project_arguments('-Werror', language: 'c')
 add_project_arguments('-fvisibility=hidden', language: 'c')
 add_project_arguments('-fno-plt', language: 'c')
 
-# Dependency
-blkid_dep = dependency('blkid')
-
 srcs = [
     'src/init.c',
     'src/modprobe.c',
-    'src/uuid.c'
 ]
 
-executable('init', srcs, install_dir:'/etc/initrd', dependencies: blkid_dep, install: true)
+executable('init', srcs, install_dir:'/etc/initrd', install: true)
 
 install_subdir('src/hooks/', install_dir: '/etc/initrd/')
 install_subdir('src/scripts/', install_dir: '/etc/initrd/')
