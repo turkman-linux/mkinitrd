@@ -7,6 +7,8 @@ function init_top(){
     if command -v fsck.$rootfstype >/dev/null ; then
         yes "" | fsck.$rootfstype "$root" || true
     fi
+    modprobe sd_mod || true
+    modprobe sr_mod || true
 }
 
 function init_bottom(){

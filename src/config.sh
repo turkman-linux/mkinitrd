@@ -1,6 +1,6 @@
 #!/bin/sh
 # Hook order
-hooks="base eudev modules filesystem"
+hooks="base modules filesystem"
 # Module list
 # * most = copy all storage and filesystem modules
 # * dep = copy all modules used by current system

@@ -73,7 +73,7 @@ function print_copy_modules(){
                 if [ -f "$work/"$value ] ; then
                     continue
                 fi
-                echo install -Dm644 $value "$work/"$value
+                echo install -Dm644 $value "$work/"lib/modules/$kernel/$(basename $value)
             elif [ "$name" == "depends" ] ; then
                 for dep in ${value//,/ } ; do
                     print_copy_modules $dep
@@ -93,15 +93,16 @@ function copy_modules(){
 alias manual_add_modules=copy_modules
 
 function copy_module_tree() {
+    set -e
     for arg in "$@"; do
         if ! [ -d /lib/modules/$kernel/$arg/ ] ; then
             continue
         fi
         find  /lib/modules/$kernel/$arg -type f | while read module ; do
-            print_copy_modules "$module" &
-        done
-    done | sort | uniq | sh -e
-    wait
+            print_copy_modules "$module"
+        done &
+        wait
+    done | sort | uniq | sh +e
 }
 
 function copy_files(){

@@ -41,5 +41,8 @@ elif [ "$modules" == "none" ] ; then
     : Module Copy Disabled
 fi
 
+copy_modules $(cat /etc/modules /etc/modules.load.d/* | grep -v "#")
+echo $(cat /etc/modules /etc/modules.load.d/* | grep -v "#") > $work/etc/modules
+
 find $work/lib/modules -type f -iname "*.ko.gz" -exec gzip -d {} \;
 find $work/lib/modules -type f -iname "*.ko.xz" -exec xz -d {} \;
