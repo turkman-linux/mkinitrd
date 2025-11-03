@@ -27,6 +27,7 @@ function init_top(){
         yes "" | fsck.$rootfstype "$root" || true
     fi
     modprobe sd_mod || true
+    modprobe nvme   || true
     modprobe sr_mod || true
 }
 

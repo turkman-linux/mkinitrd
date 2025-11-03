@@ -41,6 +41,20 @@ static void *modprobe_fn(void *arg) {
 }
 
 void modprobe() {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork failed");
+        return;
+    }
+    if (pid == 0) {  // Child process
+            char *args[] = {"depmod", "-a", NULL};
+            execvp(args[0], args);
+            perror("execvp failed");
+            exit(1);
+    }
+    int status;
+    waitpid(pid, &status, 0);
+
     DIR *dir;
     struct dirent *entry;
     size_t alias_size = 512;
