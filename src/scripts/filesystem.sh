@@ -17,7 +17,14 @@ function init_top(){
     if [ "${root#UUID=}" != "$root" ]; then
         # mark as custom rootfs mount
         mkdir -p /rootfs
-        export root=$(get_part)
+        rootfs=$(get_part)
+        while [ "$rootfs" == "" ] && [ $i -lt 10 ] ; do
+            echo "Waiting for root: $root"
+            sleep 1
+            i=$(($i+1))
+            rootfs=$(get_part)
+        done
+        export root="$rootfs"
     fi
     if [ "$rootfstype" == "" ] ; then
         rootfstype=ext4
