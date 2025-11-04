@@ -327,11 +327,13 @@ int main(int argc, char** argv) {
     // Check Winzort OEM
     struct stat st;
     if (stat("/sys/firmware/acpi/tables/MSDM", &st) == 0) {
-        printf("\033c");
-        printf("\033[31;1mWarning:\033[;0m OEM Detected!\n");
-        printf("Your system may not working good\n");
-        printf("You system will boot in 5 secs ...\n");
-        sleep(5);
+        for(int i=0; i<5;i++){
+            printf("\033c");
+            printf("\033[31;1mWarning:\033[;0m OEM Detected!\n");
+            printf("Your system may not working good\n");
+            printf("You system will boot in %d secs ...\n", 5-i);
+            sleep(1);
+        }
     }
 
     // Move mountpoints
