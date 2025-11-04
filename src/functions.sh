@@ -38,18 +38,21 @@ function get_modinfo(){
     file="$1"
     suffix=${file/*./}
     name=$(basename "$file" | cut -f1 -d".")
+    rn="$RANDOM"
     if [ "$suffix" == "gz" ] ; then
         if [ ! -f /tmp/module/"$name".ko ] ; then
-            cp -f "$file" /tmp/module/"$name".ko.gz >/dev/null
-            gzip -d /tmp/module/"$name".ko.gz  >/dev/null
-            rm -f /tmp/module/"$name".ko.gz
+            cp -f "$file" /tmp/module/"$name"-"$rn".ko.gz >/dev/null
+            gzip -d /tmp/module/"$name"-"$rn".ko.gz  >/dev/null
+            rm -f /tmp/module/"$name"-"$rn".ko.gz
+            mv /tmp/module/"$name"-"$rn".ko /tmp/module/"$name".ko
         fi
         modinfo /tmp/module/"$name".ko
     elif [ "$suffix" == "xz" ] ; then
         if [ ! -f /tmp/module/"$name".ko ] ; then
-            cp -f "$file" /tmp/module/"$name".ko.xz >/dev/null
-            xz -d /tmp/module/"$name".ko.xz  >/dev/null
-            rm -f /tmp/module/"$name".ko.xz
+            cp -f "$file" /tmp/module/"$name"-"$rn".ko.xz >/dev/null
+            xz -d /tmp/module/"$name"-"$rn".ko.xz  >/dev/null
+            rm -f /tmp/module/"$name"-"$rn".ko.xz
+            mv /tmp/module/"$name"-"$rn".ko /tmp/module/"$name".ko
         fi
         modinfo /tmp/module/"$name".ko
     else
