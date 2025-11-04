@@ -33,6 +33,12 @@ function init_top(){
 
 function init_bottom(){
     if [ "${root#UUID=}" != "$root" ]; then
-        mount -t auto $(get_part) /rootfs
+        if [ "$rootflags" == "" ] ; then
+            rootflags="ro"
+        fi
+        if [ "$rootfstype" == "" ] ; then
+            rootfstype=auto
+        fi
+        mount -t $rootfstype $(get_part) -o $rootflags /rootfs
     fi
 }

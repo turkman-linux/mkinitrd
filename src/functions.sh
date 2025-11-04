@@ -36,28 +36,7 @@ alias copy_exec=copy_binary
 
 function get_modinfo(){
     file="$1"
-    suffix=${file/*./}
-    name=$(basename "$file" | cut -f1 -d".")
-    rn="$RANDOM"
-    if [ "$suffix" == "gz" ] ; then
-        if [ ! -f /tmp/module/"$name".ko ] ; then
-            cp -f "$file" /tmp/module/"$name"-"$rn".ko.gz >/dev/null
-            gzip -d /tmp/module/"$name"-"$rn".ko.gz  >/dev/null
-            rm -f /tmp/module/"$name"-"$rn".ko.gz
-            mv /tmp/module/"$name"-"$rn".ko /tmp/module/"$name".ko
-        fi
-        modinfo /tmp/module/"$name".ko
-    elif [ "$suffix" == "xz" ] ; then
-        if [ ! -f /tmp/module/"$name".ko ] ; then
-            cp -f "$file" /tmp/module/"$name"-"$rn".ko.xz >/dev/null
-            xz -d /tmp/module/"$name"-"$rn".ko.xz  >/dev/null
-            rm -f /tmp/module/"$name"-"$rn".ko.xz
-            mv /tmp/module/"$name"-"$rn".ko /tmp/module/"$name".ko
-        fi
-        modinfo /tmp/module/"$name".ko
-    else
-        modinfo -k $kernel "$file"
-    fi
+    modinfo -k $kernel "$file"
 }
 
 function print_copy_modules(){
@@ -102,8 +81,8 @@ function copy_module_tree() {
             continue
         fi
         find  /lib/modules/$kernel/$arg -type f | while read module ; do
-            print_copy_modules "$module"
-        done &
+            print_copy_modules "$module" &
+        done
         wait
     done | sort | uniq | sh +e
 }
