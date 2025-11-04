@@ -14,15 +14,19 @@ function get_part(){
 }
 
 function init_top(){
+    modprobe sd_mod || true
+    modprobe nvme   || true
+    modprobe sr_mod || true
     if [ "${root#UUID=}" != "$root" ]; then
         # mark as custom rootfs mount
         mkdir -p /rootfs
         rootfs=$(get_part)
+        i=0
         while [ "$rootfs" == "" ] && [ $i -lt 10 ] ; do
-            echo "Waiting for root: $root"
+            echo "Waiting for root: $root ($rootfs)"
             sleep 1
             i=$(($i+1))
-            rootfs=$(get_part)
+            export rootfs=$(get_part)
         done
         export root="$rootfs"
     fi
@@ -33,9 +37,6 @@ function init_top(){
     if command -v fsck.$rootfstype >/dev/null ; then
         yes "" | fsck.$rootfstype "$root" || true
     fi
-    modprobe sd_mod || true
-    modprobe nvme   || true
-    modprobe sr_mod || true
 }
 
 function init_bottom(){
