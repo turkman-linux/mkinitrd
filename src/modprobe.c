@@ -7,6 +7,10 @@
 #include <sys/wait.h>
 #include <sys/sysinfo.h>
 
+#ifndef PATH_MAX
+#define PATH_MAX 1024
+#endif
+
 #define STARTSWITH(A, B) (strncmp(A, B, strlen(B)) == 0)
 
 typedef struct {
