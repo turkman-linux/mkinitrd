@@ -19,6 +19,7 @@ fi
 depmod -a "$kernel"
 # create work
 export work=$(mktemp -d)
+mount -t tmpfs -o rw,exec tmpfs $work
 echo "Create workdir: $work"
 for dir in etc bin lib scripts; do
     mkdir -p $work/$dir
@@ -63,7 +64,8 @@ find . | cpio -H newc -o | $compress > $output
 cd $cur
 # clear work
 if [ "$keep" == 0 ] ; then
-    rm -rf $work
+    umount	$work
+    rmdir $work
     rm -rf /tmp/module
 fi
 # mkunify

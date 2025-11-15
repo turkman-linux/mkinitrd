@@ -173,18 +173,16 @@ static void mount_virtual_filesystems() {
     create_dir_if_not_exists("/sys");
     create_dir_if_not_exists("/proc");
     create_dir_if_not_exists("/run");
-    
+    create_dir_if_not_exists("/tmp");
+
     if (mount("devtmpfs", "/dev", "devtmpfs", 0, NULL) == -1) {
         perror("Failed to mount devtmpfs");
     }
     if (mount("sysfs", "/sys", "sysfs", 0, NULL) == -1) {
         perror("Failed to mount sysfs");
     }
-    if (mount("proc", "/proc", "proc", 0, NULL) == -1) {
+    if (mount("proc", "/proc", "proc", 0, "hidepid=2,gid=31") == -1) {
         perror("Failed to mount proc");
-    }
-    if (mount("tmpfs", "/run", "tmpfs", 0, NULL) == -1) {
-        perror("Failed to mount run");
     }
 }
 
@@ -198,8 +196,14 @@ static void move_virtual_filesystems() {
     if (mount("/proc", "/rootfs/proc", NULL, MS_MOVE, NULL) == -1) {
         perror("Failed to move mount /proc");
     }
-    if (mount("/run", "/rootfs/run", NULL, MS_MOVE, NULL) == -1) {
-        perror("Failed to move mount /run");
+    if (mount("tmpfs", "/rootfs/run", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL) == -1) {
+        perror("Failed to mount run");
+    }
+    if (mount("tmpfs", "/rootfs/tmp", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL) == -1) {
+        perror("Failed to mount tmp");
+    }
+    if (mount("tmpfs", "/rootfs/dev/shm", "tmpfs", MS_NOSUID | MS_NOEXEC | MS_NODEV, NULL) == -1) {
+        perror("Failed to mount tmp");
     }
     create_dir_if_not_exists("/rootfs/dev/pts");
     if (mount("devpts", "/rootfs/dev/pts", "devpts", 0, NULL) == -1) {
@@ -226,7 +230,6 @@ static void parse_kernel_cmdline() {
                 char *val = strstr(token, "=");
                 if (val != NULL && val - token > 0) {
                     token[val - token] = '\0';
-                    
                     char *key = strdup(token);
                     char *value = strdup(val + 1);
                     if (key && value) {
