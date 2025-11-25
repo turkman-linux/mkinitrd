@@ -14,6 +14,7 @@
 extern void modprobe();
 extern char* find_uuid(const char* uuid);
 
+
 static void create_shell() {
     fprintf(stderr, "\033[31;1mBoot failed!\033[;0m Creating debug shell as PID: 1\n");
 
@@ -89,16 +90,14 @@ static void mount_root(const char *root) {
         (void)rc;
     }
 }
-
-static void create_dir_if_not_exists(const char *path) {
-    struct stat st;
-    if (stat(path, &st) == -1) {
-        if (mkdir(path, 0755) == -1) {
-            perror("Failed to create directory");
-            create_shell();
-        }
-    }
-}
+static struct stat st;
+#define create_dir_if_not_exists(A) \
+    if (stat(A, &st) == -1) { \
+        if (mkdir(A, 0755) == -1) { \
+            perror("Failed to create directory"); \
+            create_shell(); \
+        } \
+    }\
 
 static int is_mount_point(const char *dir) {
     // detect directory is a mountpoint
